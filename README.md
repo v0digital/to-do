@@ -27,9 +27,9 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento:
 2.  **Configuração do Banco de Dados:**
     Certifique-se de que o seu MySQL está ativo e configure o ficheiro `.env` na raiz do projeto:
     ```env
-    DATABASE_URL="mysql://root:748013@localhost:3306/todo_db"
-    RESEND_API_KEY="re_aLarNXSh_43Kk2Aom76avKsQoSiGzwDyZ"
-    JWT_SECRET="SsK6HZ4+6jfGSHZYZt/3gECKHZfGSOY+0Grv2u9WZCA="
+    DATABASE_URL="mysql://root:SUA_SENHA@localhost:3306/todo_db"
+    RESEND_API_KEY="sua_chave_resend"
+    JWT_SECRET="seu_secret_jwt"
     NEXTAUTH_URL="http://localhost:3000"
     ```
 
