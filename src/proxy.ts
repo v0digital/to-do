@@ -1,35 +1,35 @@
 // src/proxy.ts
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { verifyToken } from '@/lib/auth'
 
 /**
- * Configuração central de rotas protegidas e públicas
- * Padrão v0 Digital para Next.js 16+
+ * Padrão v0 Digital: As rotas aqui devem ser as URLs do navegador.
+ * Route Groups como (auth) são omitidos.
  */
-const AUTH_ROUTES = ['/auth/login', '/auth/register']
-const PROTECTED_ROUTES = ['/dashboard', '/api/tasks', '/api/notifications']
+const AUTH_URLS = ['/login', '/register']
+const PROTECTED_URLS = ['/dashboard', '/api/tasks', '/api/notifications']
 
 export async function proxy(request: NextRequest) {
-  const token = await getToken({
-    req: request,
-    secret: process.env.JWT_SECRET
-  })
+  // CORREÇÃO: Busca o token do cookie manual 'auth-token' definido na sua API
+  const authToken = request.cookies.get('auth-token')?.value
+  const user = authToken ? verifyToken(authToken) : null
 
   const { pathname } = request.nextUrl
 
-  // 1. Bloqueia acesso ao Dashboard se não houver token
-  if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
-    if (!token) {
-      const url = new URL('/auth/login', request.url)
+  // 1. Proteção de Rotas Privadas
+  if (PROTECTED_URLS.some(route => pathname.startsWith(route))) {
+    if (!user) {
+      // Redireciona para /login (URL real), não para /(auth)/login
+      const url = new URL('/login', request.url)
       url.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(url)
     }
   }
 
-  // 2. Redireciona usuários logados que tentam acessar login/register
-  if (AUTH_ROUTES.some(route => pathname.startsWith(route))) {
-    if (token) {
+  // 2. Redireciona usuários logados para fora das páginas de autenticação
+  if (AUTH_URLS.some(route => pathname.startsWith(route))) {
+    if (user) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }

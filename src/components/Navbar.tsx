@@ -31,13 +31,13 @@ export default function Navbar() {
 
                     <div className="flex items-center space-x-4">
                         <Link
-                            href="/auth/login"
+                            href="/login"
                             className="hidden sm:inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                         >
                             Entrar
                         </Link>
                         <Link
-                            href="/auth/register"
+                            href="/register"
                             className="inline-flex items-center rounded-lg bg-linear-to-r from-indigo-600 to-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg hover:from-indigo-700 hover:to-indigo-700 transition-all hover:shadow-xl"
                         >
                             Começar Grátis
