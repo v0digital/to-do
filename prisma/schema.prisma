@@ -1,0 +1,51 @@
+  // prisma/schema.prisma
+  generator client {
+    provider = "prisma-client-js"
+  }
+
+  datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+  }
+
+  model User {
+    id            String         @id @default(cuid())
+    email         String         @unique
+    password      String
+    name          String?
+    emailVerified Boolean        @default(false)
+    emailToken    String?
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    tasks         Task[]
+    notifications Notification[]
+  }
+
+  model Task {
+    id          String         @id @default(cuid())
+    title       String
+    description String?
+    status      String         @default("PENDING")
+    timeSpent   Int            @default(0)
+    estimatedTime Int?
+    startedAt   DateTime?
+    completedAt DateTime?
+    userId      String
+    user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    createdAt   DateTime       @default(now())
+    updatedAt   DateTime       @updatedAt
+    notifications Notification[]
+  }
+
+  model Notification {
+    id        String   @id @default(cuid())
+    type      String   // 'info', 'warning', 'success', 'error'
+    title     String
+    message   String
+    read      Boolean  @default(false)
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    taskId    String?
+    task      Task?    @relation(fields: [taskId], references: [id])
+    createdAt DateTime @default(now())
+  }
