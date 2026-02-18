@@ -9,9 +9,11 @@ export default function Navbar() {
                 <div className="flex h-16 items-center justify-between">
                     {/* Brand Area */}
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-gray-800 to-gray-950 shadow-lg dark:from-gray-50 dark:to-gray-200">
-                            <CalendarDays className="h-5 w-5 text-white dark:text-gray-950" />
-                        </div>
+                        <Link href="/" className="flex items-center gap-2 group">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-gray-800 to-gray-950 shadow-lg dark:from-gray-50 dark:to-gray-200">
+                                <CalendarDays className="h-5 w-5 text-white dark:text-gray-950" />
+                            </div>
+                        </Link>
                         <div className="flex flex-col leading-none">
                             <span className="text-lg font-bold tracking-tight text-gray-800 dark:text-gray-50">v0 Digital</span>
                             <span className="text-[10px] font-bold tracking-widest text-gray-400 dark:text-gray-200 uppercase">SaaS Pro</span>
@@ -20,14 +22,11 @@ export default function Navbar() {
 
                     {/* Navigation Links */}
                     <div className="hidden md:flex items-center gap-8">
-                        <Link href="#features" className="text-sm font-semibold text-gray-400 transition-colors hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-50">
+                        <Link href="#tasks" className="text-sm font-semibold text-gray-400 transition-colors hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-50">
                             Funcionalidades
                         </Link>
-                        <Link href="#how-it-works" className="text-sm font-semibold text-gray-400 transition-colors hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-50">
+                        <Link href="#charts" className="text-sm font-semibold text-gray-400 transition-colors hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-50">
                             Como funciona
-                        </Link>
-                        <Link href="#pricing" className="text-sm font-semibold text-gray-400 transition-colors hover:text-gray-800 dark:text-gray-200 dark:hover:text-gray-50">
-                            Planos
                         </Link>
                     </div>
 

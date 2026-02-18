@@ -132,7 +132,7 @@ export default function DemoPage() {
                         <div className="flex items-center gap-3">
                             <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-500 dark:border-gray-800 dark:text-gray-400">
                                 <Bell className="h-5 w-5" />
-                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-500 text-[10px] font-bold text-white">1</span>
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">1</span>
                             </button>
 
                             <div className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-3 py-1.5 dark:border-gray-800 dark:bg-gray-950">
