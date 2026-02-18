@@ -2,6 +2,8 @@
 'use client'
 
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { toast } from 'sonner'
+import { Bell, BellRing, CheckCircle2, ShieldAlert, X } from 'lucide-react'
 
 interface NotificationSoundProps {
     playSound: boolean
@@ -12,64 +14,50 @@ interface NotificationSoundProps {
 
 export default function NotificationSound({
     playSound,
-    title = "TaskFlow",
-    message = "Alerta de tempo",
+    title = "v0 Digital",
+    message = "Alerta de sistema",
     soundType = 'alert'
 }: NotificationSoundProps) {
     const [permission, setPermission] = useState<NotificationPermission>('default')
     const [hasPlayed, setHasPlayed] = useState(false)
     const [isClient, setIsClient] = useState(false)
     const [userHasInteracted, setUserHasInteracted] = useState(false)
+    const [isVisible, setIsVisible] = useState(true)
     const audioRef = useRef<HTMLAudioElement | null>(null)
 
-    // URLs dos sons
     const soundUrls = {
         alert: '/audio/alert.mp3',
         warning: '/audio/warning.mp3',
         success: '/audio/success.mp3'
     }
 
-    // Inicializar no cliente
     useEffect(() => {
         setIsClient(true)
-
-        // Verificar se usuário já interagiu (para áudio automático)
-        const handleUserInteraction = () => {
+        const handleInteraction = () => {
             setUserHasInteracted(true)
-            // Remover listeners após primeira interação
-            document.removeEventListener('click', handleUserInteraction)
-            document.removeEventListener('keydown', handleUserInteraction)
-            document.removeEventListener('touchstart', handleUserInteraction)
+            document.removeEventListener('click', handleInteraction)
+            document.removeEventListener('keydown', handleInteraction)
         }
-
-        document.addEventListener('click', handleUserInteraction)
-        document.addEventListener('keydown', handleUserInteraction)
-        document.addEventListener('touchstart', handleUserInteraction)
-
+        document.addEventListener('click', handleInteraction)
+        document.addEventListener('keydown', handleInteraction)
         return () => {
-            document.removeEventListener('click', handleUserInteraction)
-            document.removeEventListener('keydown', handleUserInteraction)
-            document.removeEventListener('touchstart', handleUserInteraction)
+            document.removeEventListener('click', handleInteraction)
+            document.removeEventListener('keydown', handleInteraction)
         }
     }, [])
 
-    // Inicializar elemento de áudio
     const initializeAudio = useCallback(() => {
         if (!isClient || audioRef.current) return
-
         try {
             audioRef.current = new Audio(soundUrls[soundType])
             audioRef.current.preload = 'auto'
-            audioRef.current.volume = 0.8
-
-            // Tentar carregar o áudio
+            audioRef.current.volume = 0.6
             audioRef.current.load()
         } catch (error) {
-            console.error('Error initializing audio:', error)
+            console.error('Audio init error:', error)
         }
     }, [isClient, soundType])
 
-    // Verificar permissão ao carregar
     useEffect(() => {
         if (isClient && 'Notification' in window) {
             setPermission(Notification.permission)
@@ -77,212 +65,91 @@ export default function NotificationSound({
         }
     }, [isClient, initializeAudio])
 
-    // Solicitar permissão
     const requestPermission = () => {
-        if (!isClient || !('Notification' in window)) {
-            alert('Seu navegador não suporta notificações')
-            return
-        }
-
+        if (!isClient || !('Notification' in window)) return
         Notification.requestPermission().then((result) => {
             setPermission(result)
             if (result === 'granted') {
-                // Criar uma notificação de teste
-                try {
-                    const testNotification = new Notification('Notificações ativadas!', {
-                        body: 'Você receberá alertas sonoros para tarefas com 2 minutos restantes.',
-                        icon: '/icon.png',
-                        requireInteraction: false
-                    })
-
-                    setTimeout(() => testNotification.close(), 3000)
-                } catch (error) {
-                    console.error('Error creating test notification:', error)
-                }
+                toast.success('Notificações ativadas com sucesso')
             }
         })
     }
 
-    // Função para tocar som
     const playAudio = useCallback(() => {
-        if (!isClient) return
-
-        try {
-            // Método 1: Usar audioRef atualizado
-            if (audioRef.current) {
-                audioRef.current.currentTime = 0
-                audioRef.current.play().catch(error => {
-                    console.log('Audio play failed, trying fallback:', error)
-
-                    // Método 2: Criar novo elemento de áudio
-                    const newAudio = new Audio(soundUrls[soundType])
-                    newAudio.volume = 0.8
-                    newAudio.play().catch(console.error)
-
-                    // Método 3: Se falhar, tentar com volume 0 e depois ajustar (truque para Chrome)
-                    setTimeout(() => {
-                        const trickAudio = new Audio(soundUrls[soundType])
-                        trickAudio.volume = 0.01
-                        trickAudio.play().then(() => {
-                            trickAudio.volume = 0.8
-                        }).catch(console.error)
-                    }, 100)
-                })
-            } else {
-                // Se audioRef não existe, criar novo
-                const audio = new Audio(soundUrls[soundType])
-                audio.volume = 0.8
-                audio.play().catch(console.error)
-            }
-        } catch (error) {
-            console.error('Error playing audio:', error)
-        }
+        if (!isClient || !audioRef.current) return
+        audioRef.current.currentTime = 0
+        audioRef.current.play().catch(() => {
+            const fallback = new Audio(soundUrls[soundType])
+            fallback.volume = 0.6
+            fallback.play().catch(() => { })
+        })
     }, [isClient, soundType])
 
-    // Função para mostrar notificação
-    const showNotification = useCallback(() => {
-        if (!isClient || !('Notification' in window) || permission !== 'granted') return
-
-        try {
-            const notification = new Notification(title, {
-                body: message,
-                icon: '/icon.png',
-                tag: 'taskflow-alert-' + Date.now(),
-                requireInteraction: false,
-                silent: true // Notificação silenciosa, som é controlado separadamente
-            })
-
-            notification.onclick = () => {
-                window.focus()
-                notification.close()
-            }
-
-            setTimeout(() => {
-                notification.close()
-            }, 5000)
-
-            return notification
-        } catch (error) {
-            console.error('Error creating notification:', error)
-            return null
-        }
-    }, [isClient, permission, title, message])
-
-    // Tocar notificação quando playSound for true
     useEffect(() => {
         if (!isClient || !playSound || hasPlayed) return
+        const canNotify = userHasInteracted || permission === 'granted'
 
-        // Só tocar se usuário já interagiu OU se tem permissão de notificação
-        const canPlaySound = userHasInteracted || permission === 'granted'
-
-        if (canPlaySound) {
-            console.log('🔔 Tentando tocar notificação:', {
-                playSound,
-                userHasInteracted,
-                permission,
-                hasPlayed
-            })
-
-            // 1. Mostrar notificação visual (se permitido)
+        if (canNotify) {
             if (permission === 'granted') {
-                showNotification()
+                new Notification(title, { body: message, silent: true })
             }
-
-            // 2. Tocar som
             playAudio()
-
-            // 3. Marcar como tocado
             setHasPlayed(true)
-
-            // Resetar após 3 segundos
-            setTimeout(() => {
-                setHasPlayed(false)
-            }, 3000)
-        } else {
-            console.log('🔕 Som não tocado - usuário não interagiu e não tem permissão')
-
-            // Se não pode tocar, mostrar aviso visual
-            if (playSound) {
-                toast.warning('🔔 Alerta: Tarefa com menos de 2 minutos! Clique na página para ativar sons.')
-            }
+            setTimeout(() => setHasPlayed(false), 3000)
+        } else if (playSound) {
+            toast.warning('Clique na página para ativar os alertas sonoros.')
         }
-    }, [playSound, isClient, userHasInteracted, permission, hasPlayed, playAudio, showNotification])
+    }, [playSound, isClient, userHasInteracted, permission, hasPlayed, playAudio, title, message])
 
-    // Resetar hasPlayed quando playSound for false
-    useEffect(() => {
-        if (!playSound) {
-            setHasPlayed(false)
-        }
-    }, [playSound])
+    if (!isClient || !isVisible) return null
 
-    // Se não está no cliente, não renderizar
-    if (!isClient) {
-        return null
-    }
-
-    // Se não tem permissão, mostrar botão para solicitar
+    // Layout para Solicitação de Permissão (Minimalista v0)
     if (permission !== 'granted') {
         return (
-            <div className="fixed bottom-4 left-4 z-50 bg-indigo-50 border border-indigo-200 rounded-lg p-4 shadow-lg max-w-sm animate-fade-in">
-                <div className="flex items-start">
-                    <div className="shrink-0">
-                        <svg className="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                    </div>
-                    <div className="ml-3">
-                        <h3 className="text-sm font-medium text-indigo-800">
-                            🔔 Permitir Notificações
-                        </h3>
-                        <div className="mt-2 text-sm text-indigo-700">
-                            <p>
-                                Para receber alertas visuais quando tarefas estiverem com 2 minutos restantes.
-                            </p>
-                            <p className="mt-1 text-xs text-indigo-600">
-                                <strong>Importante:</strong> Clique em qualquer lugar da página para ativar sons automáticos.
+            <div className="fixed bottom-6 left-6 z-50 w-full max-w-xs animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-2xl dark:border-gray-800 dark:bg-gray-950">
+                    <button
+                        onClick={() => setIsVisible(false)}
+                        className="absolute top-3 right-3 text-gray-400 hover:text-gray-800 dark:hover:text-gray-50"
+                    >
+                        <X size={16} />
+                    </button>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-900">
+                            <BellRing size={20} className="text-gray-800 dark:text-gray-50" />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-bold text-gray-800 dark:text-gray-50">Alertas de Sistema</h3>
+                            <p className="mt-1 text-xs leading-relaxed text-gray-400 dark:text-gray-200">
+                                Ative as notificações para receber alertas em tempo real sobre suas tarefas.
                             </p>
                         </div>
-                        <div className="mt-4">
-                            <button
-                                onClick={requestPermission}
-                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                            >
-                                {permission === 'default' ? 'Permitir Notificações' : 'Permitir Novamente'}
-                            </button>
-
-                            {!userHasInteracted && (
-                                <p className="mt-2 text-xs text-indigo-600">
-                                    💡 <strong>Dica:</strong> Clique em qualquer lugar da página para sons automáticos funcionarem.
-                                </p>
-                            )}
-                        </div>
+                        <button
+                            onClick={requestPermission}
+                            className="w-full rounded-xl bg-gray-800 py-2.5 text-xs font-bold text-white transition-all hover:bg-gray-950 dark:bg-gray-50 dark:text-gray-950 dark:hover:bg-gray-200"
+                        >
+                            Permitir Notificações
+                        </button>
                     </div>
                 </div>
             </div>
         )
     }
 
-    // Se tem permissão, mostrar status
+    // Status Ativo (Discreto)
     return (
-        <div className="fixed bottom-4 left-4 z-50 bg-green-50 border border-green-200 rounded-lg p-3 shadow-lg max-w-sm">
-            <div className="flex items-center">
-                <div className="shrink-0">
-                    <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+        <div className="fixed bottom-6 left-6 z-50 animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white/80 px-3 py-2 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80 shadow-sm">
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-green-100 dark:bg-green-500/10">
+                    <CheckCircle2 size={14} className="text-green-600 dark:text-green-400" />
                 </div>
-                <div className="ml-2">
-                    <p className="text-xs font-medium text-green-800">
-                        Notificações ativas
-                    </p>
-                    <p className="text-xs text-green-600">
-                        {userHasInteracted ? '✅ Sons automáticos ativados' : '⚠️ Clique na página para sons'}
-                    </p>
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Sistema</span>
+                    <span className="text-[11px] font-bold text-gray-800 dark:text-gray-50">
+                        {userHasInteracted ? 'Sons Ativos' : 'Clique para ativar áudio'}
+                    </span>
                 </div>
             </div>
         </div>
     )
 }
-
-// Adicione esta função toast.warning se não existir (ou use sonner)
-import { toast } from 'sonner'

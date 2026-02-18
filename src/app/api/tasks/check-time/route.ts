@@ -7,22 +7,11 @@ import { checkTaskTimeNotifications } from '@/lib/notifications'
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
-    }
+    if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
     const result = await checkTaskTimeNotifications(user.id)
-
-    return NextResponse.json({
-      success: true,
-      result
-    })
-
+    return NextResponse.json({ success: true, result })
   } catch (error) {
-    console.error('Check task time notifications error:', error)
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erro na verificação' }, { status: 500 })
   }
 }

@@ -2,6 +2,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { Volume2, VolumeX, Settings } from 'lucide-react'
 
 interface TimerSoundProps {
     playSound: boolean
@@ -9,98 +10,82 @@ interface TimerSoundProps {
     soundType?: 'alert' | 'warning' | 'success'
 }
 
-export default function TimerSound({ playSound, onSoundPlayed, soundType = 'alert' }: TimerSoundProps) {
+export default function TimerSound({
+    playSound,
+    onSoundPlayed,
+    soundType = 'alert'
+}: TimerSoundProps) {
     const audioRef = useRef<HTMLAudioElement>(null)
     const [hasPlayed, setHasPlayed] = useState(false)
     const [isMuted, setIsMuted] = useState(false)
+    const [isClient, setIsClient] = useState(false)
 
-    // URLs dos sons (usando sons do sistema ou URLs externas)
     const soundUrls = {
         alert: 'https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3',
         warning: 'https://assets.mixkit.co/sfx/preview/mixkit-warning-alarm-buzzer-765.mp3',
         success: 'https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3'
     }
 
-    // Carregar preferência de som do localStorage
     useEffect(() => {
-        const savedMute = localStorage.getItem('timerSoundMuted')
-        if (savedMute === 'true') {
-            setIsMuted(true)
-        }
+        setIsClient(true)
+        const savedMute = localStorage.getItem('v0_timer_muted')
+        if (savedMute === 'true') setIsMuted(true)
     }, [])
 
-    // Tocar som quando playSound for true
     useEffect(() => {
         if (playSound && audioRef.current && !isMuted && !hasPlayed) {
             audioRef.current.currentTime = 0
-            audioRef.current.play().catch(error => {
-                console.log('Autoplay prevented:', error)
-                // Tentar tocar após interação do usuário
-                document.addEventListener('click', playAudioOnInteraction, { once: true })
+            audioRef.current.play().catch(() => {
+                const playOnInteraction = () => {
+                    audioRef.current?.play().catch(() => { })
+                    document.removeEventListener('click', playOnInteraction)
+                }
+                document.addEventListener('click', playOnInteraction)
             })
 
             setHasPlayed(true)
-            if (onSoundPlayed) {
-                onSoundPlayed()
-            }
+            if (onSoundPlayed) onSoundPlayed()
         }
 
-        if (!playSound) {
-            setHasPlayed(false)
-        }
-
-        function playAudioOnInteraction() {
-            if (audioRef.current && playSound && !isMuted) {
-                audioRef.current.play().catch(console.error)
-            }
-        }
-
-        return () => {
-            document.removeEventListener('click', playAudioOnInteraction)
-        }
+        if (!playSound) setHasPlayed(false)
     }, [playSound, isMuted, hasPlayed, onSoundPlayed])
 
-    // Salvar preferência de mute
     const toggleMute = () => {
-        const newMuteState = !isMuted
-        setIsMuted(newMuteState)
-        localStorage.setItem('timerSoundMuted', newMuteState.toString())
+        const newState = !isMuted
+        setIsMuted(newState)
+        localStorage.setItem('v0_timer_muted', newState.toString())
     }
 
-    return (
-        <div className="fixed bottom-4 right-4 z-50">
-            {/* Áudio elements */}
-            <audio
-                ref={audioRef}
-                preload="auto"
-                src={soundUrls[soundType]}
-            >
-                <source src={soundUrls[soundType]} type="audio/mpeg" />
-                Seu navegador não suporta o elemento de áudio.
-            </audio>
+    if (!isClient) return null
 
-            {/* Botão de controle de som */}
-            <div className="flex items-center space-x-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg px-3 py-2 border border-gray-200">
+    return (
+        <div className="fixed right-6 bottom-6 z-50">
+            <audio ref={audioRef} preload="auto" src={soundUrls[soundType]} />
+
+            <div className="flex items-center gap-3 rounded-full border border-gray-200 bg-white/80 p-1.5 pr-4 shadow-xl backdrop-blur-md transition-all dark:border-gray-800 dark:bg-gray-950/80">
                 <button
                     onClick={toggleMute}
-                    className={`p-1 rounded-full ${isMuted ? 'bg-gray-200' : 'bg-indigo-100'}`}
-                    title={isMuted ? 'Ativar sons' : 'Desativar sons'}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${isMuted
+                            ? 'bg-gray-100 text-gray-400 dark:bg-gray-900'
+                            : 'bg-gray-800 text-white dark:bg-gray-50 dark:text-gray-950 shadow-lg'
+                        }`}
+                    title={isMuted ? 'Ativar alertas sonoros' : 'Silenciar sistema'}
                 >
-                    {isMuted ? (
-                        <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clipRule="evenodd" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                        </svg>
-                    ) : (
-                        <svg className="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072M12 6a9 9 0 010 12m4.5-15.5a13 13 0 010 19.5M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                        </svg>
-                    )}
+                    {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                 </button>
 
-                <span className="text-xs text-gray-600">
-                    {isMuted ? 'Sons desativados' : 'Sons ativos'}
-                </span>
+                <div className="flex flex-col leading-none">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-200">
+                        Áudio {isMuted ? 'Mudo' : 'Ativo'}
+                    </span>
+                    <span className="mt-0.5 text-[11px] font-bold text-gray-800 dark:text-gray-50">
+                        {isMuted ? 'Alertas Silenciados' : 'Sons do Sistema'}
+                    </span>
+                </div>
+
+                <div className="ml-2 flex h-4 w-4 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-900">
+                    <Settings size={10} className="text-gray-400 animate-spin-slow" />
+                </div>
             </div>
         </div>
     )
