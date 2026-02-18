@@ -48,9 +48,15 @@ export default function LoginPage() {
             <div className="flex flex-1 items-center justify-center p-4">
                 <div className="w-full max-w-md">
                     <div className="mb-10 text-center">
-                        <div className="bg-linear-to-br from-gray-800 to-gray-950 dark:from-gray-50 dark:to-gray-200 inline-flex h-14 w-14 items-center justify-center rounded-2xl mb-4 shadow-xl">
-                            <span className="text-2xl font-bold text-white dark:text-gray-950 font-mono">v0</span>
-                        </div>
+                        <Link
+                            href="/"
+                            rel="icon"
+                            type="image/svg+xml"
+                        >
+                            <div className="bg-linear-to-br from-gray-800 to-gray-950 dark:from-gray-50 dark:to-gray-200 inline-flex h-14 w-14 items-center justify-center rounded-2xl mb-4 shadow-xl">
+                                <span className="text-2xl font-bold text-white dark:text-gray-950 font-mono">v0</span>
+                            </div>
+                        </Link>
                         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-50 tracking-tight">
                             Acesse sua conta
                         </h1>

@@ -98,7 +98,7 @@ export default function TaskCharts({ tasks }: TaskChartsProps) {
                     <div key={i} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950 transition-all hover:shadow-xs">
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">
-                                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-gray-400">{item.label}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{item.label}</span>
                                 <span className="mt-1 text-2xl font-bold tracking-tighter text-gray-800 dark:text-gray-50">{item.val}</span>
                             </div>
                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
@@ -191,15 +191,15 @@ export default function TaskCharts({ tasks }: TaskChartsProps) {
                         <div className="space-y-6">
                             <div className="flex items-center justify-between rounded-2xl bg-gray-50 dark:bg-gray-900/50 p-4">
                                 <div className="flex items-center gap-4">
-                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-50 transition-colors"><ChevronLeft size={18} /></button>
+                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-50 transition-colors"><ChevronLeft size={18}/></button>
                                     <span className="text-[11px] font-black text-gray-800 dark:text-gray-50 uppercase tracking-[0.2em]">{currentMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</span>
-                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-50 transition-colors"><ChevronRight size={18} /></button>
+                                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="text-gray-400 hover:text-gray-800 dark:hover:text-gray-50 transition-colors"><ChevronRight size={18}/></button>
                                 </div>
                                 <button onClick={() => setCurrentMonth(new Date())} className="text-[10px] font-black uppercase text-gray-400 hover:text-gray-950 dark:hover:text-gray-50">Reset</button>
                             </div>
 
                             <div className="hidden grid-cols-7 border-t border-l border-gray-100 dark:border-gray-900 md:grid">
-                                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(d => (
+                                {['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(d => (
                                     <div key={d} className="border-r border-b border-gray-100 bg-gray-50/50 p-3 text-center text-[9px] font-black uppercase tracking-widest text-gray-400 dark:border-gray-900 dark:bg-gray-900/30">{d}</div>
                                 ))}
                                 {calendarDays.map((d, i) => {
