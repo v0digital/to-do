@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# To-Do SaaS Platform | v0 Digital
 
-## Getting Started
+Uma plataforma profissional de gestão de tarefas e produtividade de alta performance, construída com **Next.js 16+**, **Prisma ORM**, **MySQL** e **Tailwind CSS v4**.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Tecnologias Core
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* **Framework:** [Next.js 16+](https://nextjs.org) (App Router)
+* **Database:** MySQL via [Prisma ORM](https://www.prisma.io/)
+* **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) (Standard v4 @latest)
+* **Auth:** NextAuth.js com estratégia JWT
+* **E-mail:** Resend API para notificações e verificação
+* **Linguagem:** TypeScript
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Configuração do Ambiente
 
-## Learn More
+Siga os passos abaixo para configurar o ambiente de desenvolvimento:
 
-To learn more about Next.js, take a look at the following resources:
+1.  **Instalação de Dependências:**
+    ```bash
+    npm install
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2.  **Configuração do Banco de Dados:**
+    Certifique-se de que o seu MySQL está ativo e configure o ficheiro `.env` na raiz do projeto:
+    ```env
+    DATABASE_URL="mysql://root:748013@localhost:3306/todo_db"
+    RESEND_API_KEY="re_aLarNXSh_43Kk2Aom76avKsQoSiGzwDyZ"
+    JWT_SECRET="SsK6HZ4+6jfGSHZYZt/3gECKHZfGSOY+0Grv2u9WZCA="
+    NEXTAUTH_URL="http://localhost:3000"
+    ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3.  **Migração do Prisma:**
+    Para criar as tabelas no MySQL Workbench automaticamente:
+    ```bash
+    npx prisma migrate dev --name init
+    ```
 
-## Deploy on Vercel
+4.  **Execução do Servidor:**
+    ```bash
+    npm run dev
+    ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎨 Padrões de Design (v0 Digital)
+
+A interface segue um layout minimalista e responsivo, utilizando as classes oficiais do Tailwind v4:
+
+* **Modo Light:**
+    * Fundo: `bg-white`
+    * Títulos: `text-gray-800` | Subtítulos: `text-gray-500` | Texto: `text-gray-400`
+    * Bordas: `border-gray-200`
+    * Botões: `bg-gray-800` (hover: `bg-gray-950`)
+
+* **Modo Dark:**
+    * Fundo: `bg-gray-950`
+    * Títulos: `text-gray-50` | Subtítulos: `text-gray-100` | Texto: `text-gray-200`
+    * Bordas: `border-gray-800`
+    * Botões: `bg-gray-50` (hover: `bg-gray-200`)
+
+* **Regras:** Sem gradientes `bg-gradient-to`, apenas `bg-linear-to-br`. Sem utilização de colchetes `-[]` nas classNames.
+
+---
+
+## 📂 Estrutura de Dados
+
+* **User:** Gestão de utilizadores, autenticação e verificação de e-mail.
+* **Task:** Gestão de tarefas com controlo de `timeSpent`, `status` e `estimatedTime`.
+* **Notification:** Sistema de alertas (info, warning, success, error) associado a utilizadores e tarefas.
+
+---
+
+## 🛡️ Segurança e Rotas
+
+Este projeto utiliza o padrão **NextJS 16+** onde o `Middleware` foi substituído pelo sistema de **`src/proxy.ts`** para gestão de segurança e redirecionamentos.
+
+---
+© 2026 **v0 Digital** - Desenvolvimento Profissional.
